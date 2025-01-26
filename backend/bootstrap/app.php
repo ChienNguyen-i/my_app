@@ -14,7 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'language' => \App\Http\Middleware\SetLanguageMiddleware::class,
+            'auth' => \App\Http\Middleware\CheckAuthMiddleware::class,
+            'verified' => \App\Http\Middleware\VerifyAccountMiddleware::class,
+            'permission' => \App\Http\Middleware\CheckPermissionMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (AuthenticationException $e, Request $request) {

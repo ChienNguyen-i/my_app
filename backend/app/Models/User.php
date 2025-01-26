@@ -17,12 +17,12 @@ class User extends Authenticatable implements JWTSubject
     {
         parent::boot();
         static::creating(function ($model) {
-            // $model->created_by = Auth::user()->id;
-            // $model->updated_by = Auth::user()->id;
+            $model->created_by = Auth::user()->id;
+            $model->updated_by = Auth::user()->id;
         });
 
         static::updating(function ($model) {
-            // $model->updated_by = Auth::user()->id;
+            $model->updated_by = Auth::user()->id;
         });
     }
 
@@ -32,7 +32,7 @@ class User extends Authenticatable implements JWTSubject
      * @var list<string>
      */
     protected $table = 'users';
-    protected $fillable = ['user_code', 'name', 'email', 'password', 'image', 'type', 'status', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['name', 'email', 'password', 'image', 'type', 'status', 'created_by', 'updated_by', 'deleted_by'];
 
     /**
      * The attributes that should be hidden for serialization.
