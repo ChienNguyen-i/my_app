@@ -15,10 +15,15 @@ use App\Mail\ResetPassword;
 use App\Mail\VerifyEmail;
 use App\Mail\Welcome;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends BaseController
 {
+    protected $ttl_default = 60 * 60;
+    protected $ttl_30days = 60 * 60 * 24 * 30;
+
     public function register(AuthRequest $request)
     {
         $user = User::where('email', $request->email)->first();
@@ -40,9 +45,13 @@ class AuthController extends BaseController
         $token = Str::random(64);
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
         DB::table('password_reset_tokens')->insert(['email' => $request->email, 'token' => $token, 'created_at' => Carbon::now()]);
-        $mailData = ['user' => $user, 'token' => $token];
-        Mail::to($request->email)->queue(new Welcome($mailData));
-        Mail::to($request->email)->queue(new VerifyEmail($mailData));
+        try {
+            $mailData = ['user' => $user, 'token' => $token];
+            Mail::to($request->email)->queue(new Welcome($mailData));
+            Mail::to($request->email)->queue(new VerifyEmail($mailData));
+        } catch (Exception $e) {
+            return $this->responsesService->error(500, __('messages.email_sending_failed'), $e->getMessage());
+        }
         return $this->responsesService->success(
             200,
             __('messages.add_successful_with_verification_link'),
@@ -52,20 +61,14 @@ class AuthController extends BaseController
 
     public function login(AuthRequest $request)
     {
-        $remember = $request->has('remember') && $request->remember == true;
-        $token = Auth::attempt(['email' => $request->email, 'password' => $request->password], $remember);
+        $remember = $request->boolean('remember');
+        $token = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
         if (!$token) {
             return $this->responsesService->error(401, __('messages.unauthorized'));
         }
-        $user = User::where('email', $request->email)->first();
-        if (!$user || $user->trashed()) {
-            return $this->responsesService->error(401, __('messages.account_inactive'));
-        }
-        return $this->responsesService->success(
-            200,
-            __('messages.login_successful'),
-            ['token' => $token, 'expires_in' => Auth::factory()->getTTL() * 60]
-        );
+        $ttl = $remember ? $this->ttl_30days : $this->ttl_default;
+        Auth::factory()->setTTL($ttl);
+        return $this->responsesService->success(200, __('messages.login_successful'), ['token' => $token, 'expires_in' => $ttl])->cookie('ttl', $ttl, $ttl);
     }
 
     public function profile()
@@ -88,11 +91,13 @@ class AuthController extends BaseController
         if (!Auth::check()) {
             return $this->responsesService->error(401, __('messages.unauthorized'));
         }
+        $ttl_cookie = request()->cookie('ttl', $this->ttl_default);
+        $ttl = ($ttl_cookie == $this->ttl_30days) ? $this->ttl_30days : $this->ttl_default;
         $token = Auth::refresh();
         return $this->responsesService->success(
             200,
             __('messages.token_refresh_successful'),
-            ['token' => $token, 'expires_in' => Auth::factory()->getTTL() * 60]
+            ['token' => $token, 'expires_in' => $ttl]
         );
     }
 
@@ -108,8 +113,12 @@ class AuthController extends BaseController
             return $this->responsesService->error(500, __('messages.email_verification_failed'));
         }
         $user = DB::table('users')->where('email', $request->email)->first();
-        $mailData = ['user' => $user];
-        Mail::to($request->email)->queue(new EmailVerified($mailData));
+        try {
+            $mailData = ['user' => $user];
+            Mail::to($request->email)->queue(new EmailVerified($mailData));
+        } catch (Exception $e) {
+            return $this->responsesService->error(500, __('messages.email_sending_failed'), $e->getMessage());
+        }
         return $this->responsesService->success(200, __('messages.email_verified'));
     }
 
@@ -122,11 +131,14 @@ class AuthController extends BaseController
             return $this->responsesService->error(400, __('messages.failed_try'));
         }
         $user = DB::table('users')->where('email', $request->email)->first();
-        $mailData = ['user' => $user, 'token' => $token];
-        Mail::to($request->email)->queue(new ResetPassword($mailData));
+        try {
+            $mailData = ['user' => $user, 'token' => $token];
+            Mail::to($request->email)->queue(new ResetPassword($mailData));
+        } catch (Exception $e) {
+            return $this->responsesService->error(500, __('messages.email_sending_failed'), $e->getMessage());
+        }
         return $this->responsesService->success(200, __('messages.password_reset_link'), $token);
     }
-
 
     public function resetPassword(AuthRequest $request)
     {
@@ -141,8 +153,12 @@ class AuthController extends BaseController
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
         DB::table('users')->where('email', $request->email)->update(['password' => Hash::make($request->password)]);
         $user = DB::table('users')->where('email', $request->email)->first();
-        $mailData = ['user' => $user];
-        Mail::to($request->email)->queue(new PasswordChanged($mailData));
+        try {
+            $mailData = ['user' => $user];
+            Mail::to($request->email)->queue(new PasswordChanged($mailData));
+        } catch (Exception $e) {
+            return $this->responsesService->error(500, __('messages.email_sending_failed'), $e->getMessage());
+        }
         return $this->responsesService->success(200, __('messages.password_reset'));
     }
 
@@ -158,8 +174,12 @@ class AuthController extends BaseController
         if (!$user) {
             return $this->responsesService->error(404, __('messages.user_not_found'));
         }
-        $mailData = ['user' => $user, 'token' => $token];
-        Mail::to($request->email)->queue(new ResetPassword($mailData));
+        try {
+            $mailData = ['user' => $user, 'token' => $token];
+            Mail::to($request->email)->queue(new ResetPassword($mailData));
+        } catch (Exception $e) {
+            return $this->responsesService->error(500, __('messages.email_sending_failed'), $e->getMessage());
+        }
         return $this->responsesService->success(200, __('messages.password_reset_link'), $token);
     }
 
@@ -175,8 +195,12 @@ class AuthController extends BaseController
         if (!$user) {
             return $this->responsesService->error(404, __('messages.user_not_found'));
         }
-        $mailData = ['user' => $user, 'token' => $token];
-        Mail::to($request->email)->queue(new VerifyEmail($mailData));
+        try {
+            $mailData = ['user' => $user, 'token' => $token];
+            Mail::to($request->email)->queue(new VerifyEmail($mailData));
+        } catch (Exception $e) {
+            return $this->responsesService->error(500, __('messages.email_sending_failed'), $e->getMessage());
+        }
         return $this->responsesService->success(200, __('messages.email_verification_link'), $token);
     }
 
@@ -197,8 +221,12 @@ class AuthController extends BaseController
         $user->tokens->each(function ($token) {
             $token->delete();
         });
-        $mailData = ['user' => $user];
-        Mail::to($user->email)->queue(new PasswordChanged($mailData));
+        try {
+            $mailData = ['user' => $user];
+            Mail::to($user->email)->queue(new PasswordChanged($mailData));
+        } catch (Exception $e) {
+            return $this->responsesService->error(500, __('messages.email_sending_failed'), $e->getMessage());
+        }
         return $this->responsesService->success(200, __('messages.password_change_successful'));
     }
 }

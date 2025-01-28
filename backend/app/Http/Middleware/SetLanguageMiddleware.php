@@ -17,14 +17,8 @@ class SetLanguageMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->hasCookie('language')) {
-            $language = $request->cookie('language');
-            App::setLocale($language);
-        } else {
-            $language = Config::get('app.locale');
-            App::setLocale($language);
-        }
-
+        $language = $request->cookie('language', Config::get('app.locale'));
+        App::setLocale($language);
         return $next($request);
     }
 }

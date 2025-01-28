@@ -64,4 +64,5 @@ return [
     'verify_email_before_continue' => 'Please verify your email before you can continue.',
     'account_inactive' => 'Account inactive.',
     'email_verification_failed' => 'Email verification failed',
+    'email_sending_failed' => 'Email sending failed',
 ];

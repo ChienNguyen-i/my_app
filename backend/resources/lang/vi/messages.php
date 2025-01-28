@@ -22,7 +22,7 @@ return [
     'invalid_token' => 'Token không hợp lệ.',
     'key_code_unique' => 'Mã khóa đã được sử dụng.',
     'language_not_support' => 'Ngôn ngữ không được hỗ trợ.',
-    'language_set_successful' => 'Language has been set successfully.',
+    'language_set_successful' => 'Ngôn ngữ đã thay đổi thành công.',
     'list_deleted_files' => 'Danh sách các tập tin đã xóa.',
     'login_failed' => 'Đăng nhập không thành công. Vui lòng thử lại sau.',
     'login_successful' => 'Đăng nhập thành công.',
@@ -64,4 +64,5 @@ return [
     'verify_email_before_continue' => 'Vui lòng xác minh email của bạn trước khi có thể tiếp tục.',
     'account_inactive' => 'Tài khoản không hoạt động.',
     'email_verification_failed' => 'Xác minh email không thành công.',
+    'email_sending_failed' => 'Gửi email không thành công.',
 ];

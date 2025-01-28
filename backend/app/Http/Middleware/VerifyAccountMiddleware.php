@@ -28,7 +28,6 @@ class VerifyAccountMiddleware
         if (Auth::user()->email_verified_at === null) {
             return $this->responsesService->error(400, __('messages.verify_email_before_continue'));
         }
-
         return $next($request);
     }
 }

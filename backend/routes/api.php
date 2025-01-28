@@ -95,7 +95,7 @@ Route::group([
             Route::post('/revoke-permission', 'revokePermission')->name('permissions.revoke_permission')->middleware('permission:permission-revoke-permission');
         });
     });
-    
+
     Route::prefix('categories')->controller(CategoryController::class)->group(function () {
         Route::get('/get-tree', 'getTree')->name('categories.get_tree');
         Route::get('/trashed', 'trashed')->name('categories.trashed')->middleware('permission:category-trashed');

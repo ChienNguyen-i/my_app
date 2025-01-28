@@ -27,7 +27,6 @@ class CheckAuthMiddleware
         if (Auth::check()) {
             return $next($request);
         }
-
         return $this->responsesService->error(401, __('messages.unauthenticated'));
     }
 }
