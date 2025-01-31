@@ -52,12 +52,13 @@ Route::group([
             Route::post('/view-pdf', 'viewPDF')->name('users.view_pdf')->middleware('permission:user-export-pdf');
 
             // file
-            Route::post('/upload-multiple-image', 'uploadMultipleImage')->name('users.upload_multiple_image');
-            Route::post('/delete-image', 'deleteImage')->name('users.deleteImage');
-            Route::post('/delete-multiple-image', 'deleteMultipleImage')->name('users.delete_multiple_image');
-            Route::post('/delete-folder', 'delete_folder')->name('users.delete_folder');
-            Route::post('/delete-multiple-folder', 'delete_multiple_folder')->name('users.delete_multiple_folder');
-            Route::post('/delete-folder', 'deleteFolderByCategory')->name('users.delete_folder_by_category');
+            Route::post('/upload-image', 'uploadImage')->name('files.upload_image');
+            Route::post('/upload-multiple-image', 'uploadMultipleImage')->name('files.upload_multiple_image');
+            Route::post('/delete-image', 'deleteImage')->name('files.delete_image');
+            Route::post('/delete-multiple-image', 'deleteMultipleImage')->name('files.delete_multiple_image');
+            Route::post('/delete-folder', 'delete_folder')->name('files.delete_folder');
+            Route::post('/delete-multiple-folder', 'delete_multiple_folder')->name('files.delete_multiple_folder');
+            Route::post('/delete-folder', 'deleteFolderByCategory')->name('files.delete_folder_by_category');
         });
 
         Route::prefix('roles')->controller(RoleController::class)->group(function () {

@@ -74,7 +74,7 @@ class CategoryRequest extends FormRequest
             if ($this->routeIs('categories.destroy')) {
                 $rules['ids'] = 'required';
             }
-            
+
             if ($this->routeIs('categories.delete_completely')) {
                 $rules['ids'] = 'required';
             }
@@ -85,7 +85,7 @@ class CategoryRequest extends FormRequest
 
     protected function failedValidation(Validator $validator)
     {
-        $response = $this->responsesService->error(422, __('messages.validation_failed'), $validator->errors());
+        $response = $this->responsesService->error(422, __('message.validation_failed'), $validator->errors());
 
         throw new HttpResponseException($response);
     }

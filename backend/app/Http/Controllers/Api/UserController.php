@@ -44,7 +44,7 @@ class UserController extends BaseController
         $total = $query->count();
         list($from, $to) = $this->calculatePagination($total, $limit, $page);
         $data = $query->offset($offset)->limit($limit)->get();
-        return $this->responsesService->pagination(200, __('messages.success'), $data, $from, $to, $page, $limit, $total);
+        return $this->responsesService->pagination(200, __('message.success'), $data, $from, $to, $page, $limit, $total);
     }
 
     /**
@@ -56,17 +56,17 @@ class UserController extends BaseController
         if ($user) {
             if ($user->trashed()) {
                 $user->restore();
-                return $this->responsesService->success(200, __('messages.restore_successful'), ['user' => $user]);
+                return $this->responsesService->success(200, __('message.restore_successful'), ['user' => $user]);
             }
-            return $this->responsesService->error(400, __('messages.email_unique'));
+            return $this->responsesService->error(400, __('message.email_unique'));
         }
         $password = Str::random(10);
         $data = $request->all();
         $data['password'] = Hash::make($password);
-        $data['image'] = $this->manageFilesService->uploadFile($request, 'image', 'users/images');
+        // $data['image'] = $this->manageFilesService->uploadFile($request, 'image', 'users/images');
         $user = User::create($data);
         if (!$user) {
-            return $this->responsesService->error(400, __('messages.add_failed'));
+            return $this->responsesService->error(400, __('message.add_failed'));
         }
         $token = Str::random(64);
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
@@ -76,11 +76,11 @@ class UserController extends BaseController
             Mail::to($request->email)->queue(new Welcome($mailData));
             Mail::to($request->email)->queue(new VerifyEmail($mailData));
         } catch (Exception $e) {
-            return $this->responsesService->error(500, __('messages.email_sending_failed'), $e->getMessage());
+            return $this->responsesService->error(500, __('message.email_sending_failed'), $e->getMessage());
         }
         return $this->responsesService->success(
             200,
-            __('messages.add_successful_with_verification_link'),
+            __('message.add_successful_with_verification_link'),
             ['user' => $user, 'token' => $token]
         );
     }
@@ -92,9 +92,9 @@ class UserController extends BaseController
     {
         try {
             $data = User::findOrFail($id);
-            return $this->responsesService->success(200, __('messages.success'), $data);
+            return $this->responsesService->success(200, __('message.success'), $data);
         } catch (ModelNotFoundException $e) {
-            return $this->responsesService->error(400, __('messages.not_found'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.not_found'), $e->getMessage());
         }
     }
 
@@ -108,17 +108,17 @@ class UserController extends BaseController
             $data = $request->all();
             if ($request->email !== $user->email) {
                 if (User::where('email', $request->email)->exists()) {
-                    return $this->responsesService->error(400, __('messages.validation_failed'), __('messages.email_unique'));
+                    return $this->responsesService->error(400, __('message.validation_failed'), __('message.email_unique'));
                 }
                 $data['email_verified_at'] = null;
             }
-            $data['image'] = $this->manageFilesService->uploadFile($request, 'image', 'users/images');
+            // $data['image'] = $this->manageFilesService->uploadFile($request, 'image', 'users/images');
             $user->update($data);
-            return $this->responsesService->success(200, __('messages.update_successful'), $user);
+            return $this->responsesService->success(200, __('message.update_successful'), $user);
         } catch (ModelNotFoundException $e) {
-            return $this->responsesService->error(400, __('messages.not_found'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.not_found'), $e->getMessage());
         } catch (Exception $e) {
-            return $this->responsesService->error(400, __('messages.update_failed'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.update_failed'), $e->getMessage());
         }
     }
 
@@ -128,45 +128,45 @@ class UserController extends BaseController
     public function destroy(UserRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $data = ['deleted_at' => Carbon::now(), 'deleted_by' => Auth::user()->id];
         $result = User::whereIn('id', $request->ids)->update($data);
         if ($result) {
-            return $this->responsesService->success(200, __('messages.delete_successful'));
+            return $this->responsesService->success(200, __('message.delete_successful'));
         }
-        return $this->responsesService->error(400, __('messages.delete_failed'));
+        return $this->responsesService->error(400, __('message.delete_failed'));
     }
 
     public function restore(UserRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $data = ['deleted_at' => null, 'deleted_by' => null];
         $result = User::onlyTrashed()->whereIn('id', $request->ids)->update($data);
         if ($result) {
-            return $this->responsesService->success(200, __('messages.restore_successful'));
+            return $this->responsesService->success(200, __('message.restore_successful'));
         }
-        return $this->responsesService->error(400, __('messages.restore_failed'));
+        return $this->responsesService->error(400, __('message.restore_failed'));
     }
 
     public function deleteCompletely(UserRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $users = User::onlyTrashed()->whereIn('id', $request->ids)->get();
         if ($users->isEmpty()) {
-            return $this->responsesService->error(400, __('messages.not_found'));
+            return $this->responsesService->error(400, __('message.not_found'));
         }
         $list_image = $users->pluck('image')->toArray();
-        $this->manageFilesService->deleteMultipleFile($list_image);
+        // $this->manageFilesService->deleteMultipleFile($list_image);
         $result = User::onlyTrashed()->whereIn('id', $request->ids)->forceDelete();
         if ($result) {
-            return $this->responsesService->success(200, __('messages.delete_successful'));
+            return $this->responsesService->success(200, __('message.delete_successful'));
         }
-        return $this->responsesService->error(400, __('messages.delete_failed'));
+        return $this->responsesService->error(400, __('message.delete_failed'));
     }
 
     public function trashed(UserRequest $request)
@@ -183,7 +183,7 @@ class UserController extends BaseController
         $total = $query->count();
         list($from, $to) = $this->calculatePagination($total, $limit, $page);
         $data = $query->offset($offset)->limit($limit)->get();
-        return $this->responsesService->pagination(200, __('messages.success'), $data, $from, $to, $page, $limit, $total);
+        return $this->responsesService->pagination(200, __('message.success'), $data, $from, $to, $page, $limit, $total);
     }
 
     // public function importExcel(UserRequest $request)
@@ -197,11 +197,11 @@ class UserController extends BaseController
 
     //         DB::commit();
 
-    //         return $this->responsesService->success(200, __('messages.import_successful'));
+    //         return $this->responsesService->success(200, __('message.import_successful'));
     //     } catch (Throwable $th) {
     //         DB::rollBack();
 
-    //         return $this->responsesService->error(400, __('messages.import_failed'), $th->getMessage());
+    //         return $this->responsesService->error(400, __('message.import_failed'), $th->getMessage());
     //     }
     // }
 
@@ -221,7 +221,7 @@ class UserController extends BaseController
     //         $data = $query->get();
     //         return Excel::download(new UsersExport($data, $this->columns_select), 'users_' . date('YmdHis') . '.xlsx');
     //     } catch (Throwable $th) {
-    //         return $this->responsesService->error(400, __('messages.export_failed'), $th->getMessage());
+    //         return $this->responsesService->error(400, __('message.export_failed'), $th->getMessage());
     //     }
     // }
 
@@ -247,7 +247,7 @@ class UserController extends BaseController
     //         $pdf = PDF::loadView('pdf.users',  $pdfData)->setPaper('a4', 'portrait');
     //         return $pdf->download('users_' . date('YmdHis') . '.pdf');
     //     } catch (Throwable $th) {
-    //         return $this->responsesService->error(400, __('messages.export_failed'), $th->getMessage());
+    //         return $this->responsesService->error(400, __('message.export_failed'), $th->getMessage());
     //     }
     // }
 
@@ -273,7 +273,7 @@ class UserController extends BaseController
     //         $pdf = PDF::loadView('pdf.users', $pdfData)->setPaper('a4', 'portrait');
     //         return $pdf->stream();
     //     } catch (Throwable $th) {
-    //         return $this->responsesService->error(400, __('messages.export_failed'), $th->getMessage());
+    //         return $this->responsesService->error(400, __('message.export_failed'), $th->getMessage());
     //     }
     // }
 
@@ -282,73 +282,12 @@ class UserController extends BaseController
         try {
             $user = Auth::user();
             if (!$user) {
-                return $this->responsesService->error(404, __('messages.user_not_found'));
+                return $this->responsesService->error(404, __('message.user_not_found'));
             }
             $permissions = $user->hasPermissions()->pluck('name', 'key_code');
-            return $this->responsesService->success(200, __('messages.success'), $permissions);
+            return $this->responsesService->success(200, __('message.success'), $permissions);
         } catch (Exception $e) {
-            return $this->responsesService->error(500, __('messages.failed_retrieve_permission'), $e->getMessage());
+            return $this->responsesService->error(500, __('message.failed_retrieve_permission'), $e->getMessage());
         }
-    }
-
-
-
-
-
-    // file
-    public function uploadMultipleImage(Request $request)
-    {
-        $result = $this->manageFilesService->uploadMultipleFile($request, 'images', 'logos');
-        return $result;
-        // if (!$result) {
-        //     $this->responsesService->error(400, __('messages.upload_failed'));
-        // }
-        // return $this->responsesService->error(200, __('messages.upload_successful'));
-    }
-
-    public function deleteImage(Request $request)
-    {
-        $result = $this->manageFilesService->deleteFile($request->file_path);
-        if (!$result) {
-            return $this->responsesService->error(400, __('messages.delete_failed'));
-        }
-        return $this->responsesService->success(200, __('messages.delete_successful'));
-    }
-
-    public function deleteMultipleImage(Request $request)
-    {
-        $result = $this->manageFilesService->deleteMultipleFile($request->all());
-        return $this->responsesService->success(200, __('messages.list_deleted_files'), $result);
-    }
-
-    public function delete_folder(Request $request)
-    {
-        $result = $this->manageFilesService->deleteFolder($request->folder_path);
-        if (!$result) {
-            return $this->responsesService->error(400, __('messages.delete_failed'));
-        }
-        return $this->responsesService->success(200, __('messages.delete_successful'));
-    }
-
-    public function delete_multiple_folder(Request $request)
-    {
-        $result = $this->manageFilesService->deleteMultipleFolder($request->all());
-        return $this->responsesService->success(200, __('messages.list_deleted_files'), $result);
-    }
-
-    public function deleteFolderByCategory(Request $request)
-    {
-        $list_folder = [];
-
-        foreach ($request->ids as $id) {
-            array_push($list_folder, 'public/uploads/' . $request->category . '/' . $id);
-        }
-
-        if (!$list_folder) {
-            return $this->responsesService->error(400, __('messages.delete_failed'));
-        }
-
-        $result = $this->manageFilesService->deleteMultipleFolder($list_folder);
-        return $this->responsesService->success(200, __('messages.list_deleted_files'), $result);
     }
 }

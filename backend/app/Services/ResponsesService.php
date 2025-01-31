@@ -22,7 +22,7 @@ class ResponsesService
         ], $status);
     }
 
-    public function pagination($status = 200, $message = 'Success', $data = null, $from, $to, $page, $limit, $total)
+    public function pagination($status = 200, $message = 'Success', $data = null, $from = 0, $to = 0, $page = 1, $limit = 10, $total = 0)
     {
         return response()->json([
             'status' => $status,

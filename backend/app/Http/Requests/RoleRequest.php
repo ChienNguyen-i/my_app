@@ -92,7 +92,7 @@ class RoleRequest extends FormRequest
 
     protected function failedValidation(Validator $validator)
     {
-        $response = $this->responsesService->error(422, __('messages.validation_failed'), $validator->errors());
+        $response = $this->responsesService->error(422, __('message.validation_failed'), $validator->errors());
 
         throw new HttpResponseException($response);
     }

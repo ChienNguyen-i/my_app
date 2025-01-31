@@ -39,7 +39,7 @@ class RoleController extends BaseController
         $total = $query->count();
         list($from, $to) = $this->calculatePagination($total, $limit, $page);
         $data = $query->offset($offset)->limit($limit)->get();
-        return $this->responsesService->pagination(200, __('messages.success'), $data, $from, $to, $page, $limit, $total);
+        return $this->responsesService->pagination(200, __('message.success'), $data, $from, $to, $page, $limit, $total);
     }
 
     /**
@@ -50,9 +50,9 @@ class RoleController extends BaseController
         $data = $request->all();
         $role = Role::create($data);
         if (!$role) {
-            return $this->responsesService->error(400, __('messages.add_failed'));
+            return $this->responsesService->error(400, __('message.add_failed'));
         }
-        return $this->responsesService->success(200, __('messages.add_successful'), $role);
+        return $this->responsesService->success(200, __('message.add_successful'), $role);
     }
 
     /**
@@ -62,9 +62,9 @@ class RoleController extends BaseController
     {
         try {
             $data = Role::findOrFail($id);
-            return $this->responsesService->success(200, __('messages.success'), $data);
+            return $this->responsesService->success(200, __('message.success'), $data);
         } catch (ModelNotFoundException $e) {
-            return $this->responsesService->error(400, __('messages.not_found'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.not_found'), $e->getMessage());
         }
     }
 
@@ -77,11 +77,11 @@ class RoleController extends BaseController
             $role = Role::findOrFail($request->id);
             $data = $request->all();
             $role->update($data);
-            return $this->responsesService->success(200, __('messages.update_successful'), $role);
+            return $this->responsesService->success(200, __('message.update_successful'), $role);
         } catch (ModelNotFoundException $e) {
-            return $this->responsesService->error(400, __('messages.not_found'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.not_found'), $e->getMessage());
         } catch (Exception $e) {
-            return $this->responsesService->error(400, __('messages.update_failed'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.update_failed'), $e->getMessage());
         }
     }
 
@@ -91,43 +91,43 @@ class RoleController extends BaseController
     public function destroy(RoleRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $data = ['deleted_at' => Carbon::now(), 'deleted_by' => Auth::user()->id];
         $result = Role::whereIn('id', $request->ids)->update($data);
         if ($result) {
-            return $this->responsesService->success(200, __('messages.delete_successful'));
+            return $this->responsesService->success(200, __('message.delete_successful'));
         }
-        return $this->responsesService->error(400, __('messages.delete_failed'));
+        return $this->responsesService->error(400, __('message.delete_failed'));
     }
 
     public function restore(RoleRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $data = ['deleted_at' => null, 'deleted_by' => null];
         $result = Role::onlyTrashed()->whereIn('id', $request->ids)->update($data);
         if ($result) {
-            return $this->responsesService->success(200, __('messages.restore_successful'));
+            return $this->responsesService->success(200, __('message.restore_successful'));
         }
-        return $this->responsesService->error(400, __('messages.restore_failed'));
+        return $this->responsesService->error(400, __('message.restore_failed'));
     }
 
     public function deleteCompletely(RoleRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $roles = Role::onlyTrashed()->whereIn('id', $request->ids)->get();
         if ($roles->isEmpty()) {
-            return $this->responsesService->error(400, __('messages.not_found'));
+            return $this->responsesService->error(400, __('message.not_found'));
         }
-        $result = Role::onlyTrashed()->whereIn('id', $request->ids)->forceDelete(); 
+        $result = Role::onlyTrashed()->whereIn('id', $request->ids)->forceDelete();
         if ($result) {
-            return $this->responsesService->success(200, __('messages.delete_successful'));
+            return $this->responsesService->success(200, __('message.delete_successful'));
         }
-        return $this->responsesService->error(400, __('messages.delete_failed'));
+        return $this->responsesService->error(400, __('message.delete_failed'));
     }
 
     public function trashed(RoleRequest $request)
@@ -144,7 +144,7 @@ class RoleController extends BaseController
         $total = $query->count();
         list($from, $to) = $this->calculatePagination($total, $limit, $page);
         $data = $query->offset($offset)->limit($limit)->get();
-        return $this->responsesService->pagination(200, __('messages.success'), $data, $from, $to, $page, $limit, $total);
+        return $this->responsesService->pagination(200, __('message.success'), $data, $from, $to, $page, $limit, $total);
     }
 
     // public function importExcel(RoleRequest $request)
@@ -158,12 +158,12 @@ class RoleController extends BaseController
 
     //         DB::commit();
 
-    //         return $this->responsesService->success(200, __('messages.import_successful'));
+    //         return $this->responsesService->success(200, __('message.import_successful'));
     //     } catch (Throwable $th) {
     //         Log::error('Import failed: ' . $th->getMessage());
     //         DB::rollBack();
 
-    //         return $this->responsesService->error(400, __('messages.import_failed'));
+    //         return $this->responsesService->error(400, __('message.import_failed'));
     //     }
     // }
 
@@ -176,7 +176,7 @@ class RoleController extends BaseController
     //     } catch (Throwable $th) {
     //         Log::error('Export failed: ' . $th->getMessage());
 
-    //         return $this->responsesService->error(400, __('messages.export_failed'));
+    //         return $this->responsesService->error(400, __('message.export_failed'));
     //     }
     // }
 
@@ -195,7 +195,7 @@ class RoleController extends BaseController
     //     } catch (Throwable $th) {
     //         Log::error('Export failed: ' . $th->getMessage());
 
-    //         return $this->responsesService->error(400, __('messages.export_failed'));
+    //         return $this->responsesService->error(400, __('message.export_failed'));
     //     }
     // }
 
@@ -214,7 +214,7 @@ class RoleController extends BaseController
     //     } catch (Throwable $th) {
     //         Log::error('View PDF failed: ' . $th->getMessage());
 
-    //         return $this->responsesService->error(400, __('messages.export_failed'));
+    //         return $this->responsesService->error(400, __('message.export_failed'));
     //     }
     // }
 
@@ -225,19 +225,19 @@ class RoleController extends BaseController
             $users = User::whereIn('id', $request->user_ids)->get();
             $roles = Role::whereIn('id', $request->role_ids)->get();
             if ($users->isEmpty()) {
-                return $this->responsesService->error(400, __('messages.users_not_found'));
+                return $this->responsesService->error(400, __('message.users_not_found'));
             }
             if ($roles->isEmpty()) {
-                return $this->responsesService->error(400, __('messages.roles_not_found'));
+                return $this->responsesService->error(400, __('message.roles_not_found'));
             }
             foreach ($users as $user) {
                 $user->roles()->syncWithoutDetaching($request->role_ids);
             }
             DB::commit();
-            return $this->responsesService->success(200, __('messages.role_assign_success'));
+            return $this->responsesService->success(200, __('message.role_assign_success'));
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->responsesService->error(400, __('messages.role_assign_failed'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.role_assign_failed'), $e->getMessage());
         }
     }
 
@@ -248,19 +248,19 @@ class RoleController extends BaseController
             $users = User::whereIn('id', $request->user_ids)->get();
             $roles = Role::whereIn('id', $request->role_ids)->get();
             if ($users->isEmpty()) {
-                return $this->responsesService->error(400, __('messages.users_not_found'));
+                return $this->responsesService->error(400, __('message.users_not_found'));
             }
             if ($roles->isEmpty()) {
-                return $this->responsesService->error(400, __('messages.roles_not_found'));
+                return $this->responsesService->error(400, __('message.roles_not_found'));
             }
             foreach ($users as $user) {
                 $user->roles()->detach($request->role_ids);
             }
             DB::commit();
-            return $this->responsesService->success(200, __('messages.role_revoke_successful'));
+            return $this->responsesService->success(200, __('message.role_revoke_successful'));
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->responsesService->error(400, __('messages.role_revoke_failed'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.role_revoke_failed'), $e->getMessage());
         }
     }
 }

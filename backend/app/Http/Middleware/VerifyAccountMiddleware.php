@@ -26,7 +26,7 @@ class VerifyAccountMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::user()->email_verified_at === null) {
-            return $this->responsesService->error(400, __('messages.verify_email_before_continue'));
+            return $this->responsesService->error(400, __('message.verify_email_before_continue'));
         }
         return $next($request);
     }

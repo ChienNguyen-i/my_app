@@ -10,7 +10,6 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, SoftDeletes;
 
     protected static function boot()
@@ -39,7 +38,7 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var list<string>
      */
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password'];
 
     /**
      * Get the attributes that should be cast.

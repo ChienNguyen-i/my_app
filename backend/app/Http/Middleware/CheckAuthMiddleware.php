@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Services\ResponsesService;
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,19 @@ class CheckAuthMiddleware
         if (Auth::check()) {
             return $next($request);
         }
-        return $this->responsesService->error(401, __('messages.unauthenticated'));
+        $token = $request->cookie('token');
+        if (!$token) {
+            return $this->responsesService->error(401, __('message.token_not_found'));
+        }
+        try {
+            $user = Auth::setToken($token)->authenticate();
+            if (!$user) {
+                return $this->responsesService->error(401, __('message.invalid_expired_token'));
+            }
+            $request->merge(['user' => $user]);
+        } catch (Exception $e) {
+            return $this->responsesService->error(401, __('message.invalid_token'), $e->getMessage());
+        }
+        return $next($request);
     }
 }

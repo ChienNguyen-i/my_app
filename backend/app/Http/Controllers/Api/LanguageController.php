@@ -12,8 +12,8 @@ class LanguageController extends BaseController
         $language = $request->language ?? 'en';
         $availableLanguages = ['en', 'vi'];
         if (!in_array($language, $availableLanguages)) {
-            return $this->responsesService->error(400, __('messages.language_not_support'), null);
+            return $this->responsesService->error(400, __('message.language_not_support'), null);
         }
-        return $this->responsesService->success(200,  __('messages.language_set_successful'), null)->cookie('language', $language, 60 * 24 * 30);
+        return $this->responsesService->success(200,  __('message.language_set_successful'), null)->cookie('language', $language, 60 * 24 * 30);
     }
 }

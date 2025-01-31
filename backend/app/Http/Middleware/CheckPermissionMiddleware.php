@@ -29,6 +29,6 @@ class CheckPermissionMiddleware
         })->exists()) {
             return $next($request);
         }
-        return $this->responsesService->error(403, __('messages.forbidden'));
+        return $this->responsesService->error(403, __('message.forbidden'));
     }
 }

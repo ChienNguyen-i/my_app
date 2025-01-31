@@ -40,7 +40,7 @@ class PermissionController extends BaseController
         $total = $query->count();
         list($from, $to) = $this->calculatePagination($total, $limit, $page);
         $data = $query->offset($offset)->limit($limit)->get();
-        return $this->responsesService->pagination(200, __('messages.success'), $data, $from, $to, $page, $limit, $total);
+        return $this->responsesService->pagination(200, __('message.success'), $data, $from, $to, $page, $limit, $total);
     }
 
     /**
@@ -51,9 +51,9 @@ class PermissionController extends BaseController
         $data = $request->all();
         $permission = Permission::create($data);
         if (!$permission) {
-            return $this->responsesService->error(400, __('messages.add_failed'));
+            return $this->responsesService->error(400, __('message.add_failed'));
         }
-        return $this->responsesService->success(200, __('messages.add_successful'), $permission);
+        return $this->responsesService->success(200, __('message.add_successful'), $permission);
     }
 
     /**
@@ -63,9 +63,9 @@ class PermissionController extends BaseController
     {
         try {
             $data = Permission::findOrFail($id);
-            return $this->responsesService->success(200, __('messages.success'), $data);
+            return $this->responsesService->success(200, __('message.success'), $data);
         } catch (ModelNotFoundException $e) {
-            return $this->responsesService->error(400, __('messages.not_found'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.not_found'), $e->getMessage());
         }
     }
 
@@ -79,16 +79,16 @@ class PermissionController extends BaseController
             $data = $request->all();
             if ($request->key_code !== $permission->key_code) {
                 if (Permission::where('key_code', $request->key_code)->exists()) {
-                    return $this->responsesService->error(400, __('messages.validation_failed'), __('messages.key_code_unique'));
+                    return $this->responsesService->error(400, __('message.validation_failed'), __('message.key_code_unique'));
                 }
                 $data['key_code'] = $request->key_code;
             }
             $permission->update($data);
-            return $this->responsesService->success(200, __('messages.update_successful'), $permission);
+            return $this->responsesService->success(200, __('message.update_successful'), $permission);
         } catch (ModelNotFoundException $e) {
-            return $this->responsesService->error(400, __('messages.not_found'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.not_found'), $e->getMessage());
         } catch (Exception $e) {
-            return $this->responsesService->error(400, __('messages.update_failed'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.update_failed'), $e->getMessage());
         }
     }
 
@@ -98,43 +98,43 @@ class PermissionController extends BaseController
     public function destroy(PermissionRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $data = ['deleted_at' => Carbon::now(), 'deleted_by' => Auth::user()->id];
         $result = Permission::whereIn('id', $request->ids)->update($data);
         if ($result) {
-            return $this->responsesService->success(200, __('messages.delete_successful'));
+            return $this->responsesService->success(200, __('message.delete_successful'));
         }
-        return $this->responsesService->error(400, __('messages.delete_failed'));
+        return $this->responsesService->error(400, __('message.delete_failed'));
     }
 
     public function restore(PermissionRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $data = ['deleted_at' => null, 'deleted_by' => null];
         $result = Permission::onlyTrashed()->whereIn('id', $request->ids)->update($data);
         if ($result) {
-            return $this->responsesService->success(200, __('messages.restore_successful'));
+            return $this->responsesService->success(200, __('message.restore_successful'));
         }
-        return $this->responsesService->error(400, __('messages.restore_failed'));
+        return $this->responsesService->error(400, __('message.restore_failed'));
     }
 
     public function deleteCompletely(PermissionRequest $request)
     {
         if (empty($request->ids)) {
-            return $this->responsesService->error(400, __('messages.no_ids_provided'));
+            return $this->responsesService->error(400, __('message.no_ids_provided'));
         }
         $permissions = Permission::onlyTrashed()->whereIn('id', $request->ids)->get();
         if ($permissions->isEmpty()) {
-            return $this->responsesService->error(400, __('messages.not_found'));
+            return $this->responsesService->error(400, __('message.not_found'));
         }
         $result = Permission::onlyTrashed()->whereIn('id', $request->ids)->forceDelete();
         if ($result) {
-            return $this->responsesService->success(200, __('messages.delete_successful'));
+            return $this->responsesService->success(200, __('message.delete_successful'));
         }
-        return $this->responsesService->error(400, __('messages.delete_failed'));
+        return $this->responsesService->error(400, __('message.delete_failed'));
     }
 
     public function trashed(PermissionRequest $request)
@@ -151,7 +151,7 @@ class PermissionController extends BaseController
         $total = $query->count();
         list($from, $to) = $this->calculatePagination($total, $limit, $page);
         $data = $query->offset($offset)->limit($limit)->get();
-        return $this->responsesService->pagination(200, __('messages.success'), $data, $from, $to, $page, $limit, $total);
+        return $this->responsesService->pagination(200, __('message.success'), $data, $from, $to, $page, $limit, $total);
     }
 
     // public function importExcel(PermissionRequest $request)
@@ -165,12 +165,12 @@ class PermissionController extends BaseController
 
     //         DB::commit();
 
-    //         return $this->responsesService->success(200, __('messages.import_successful'));
+    //         return $this->responsesService->success(200, __('message.import_successful'));
     //     } catch (Throwable $th) {
     //         Log::error('Import failed: ' . $th->getMessage());
     //         DB::rollBack();
 
-    //         return $this->responsesService->error(400, __('messages.import_failed'));
+    //         return $this->responsesService->error(400, __('message.import_failed'));
     //     }
     // }
 
@@ -183,7 +183,7 @@ class PermissionController extends BaseController
     //     } catch (Throwable $th) {
     //         Log::error('Export failed: ' . $th->getMessage());
 
-    //         return $this->responsesService->error(400, __('messages.export_failed'));
+    //         return $this->responsesService->error(400, __('message.export_failed'));
     //     }
     // }
 
@@ -202,7 +202,7 @@ class PermissionController extends BaseController
     //     } catch (Throwable $th) {
     //         Log::error('Export failed: ' . $th->getMessage());
 
-    //         return $this->responsesService->error(400, __('messages.export_failed'));
+    //         return $this->responsesService->error(400, __('message.export_failed'));
     //     }
     // }
 
@@ -221,14 +221,14 @@ class PermissionController extends BaseController
     //     } catch (Throwable $th) {
     //         Log::error('View PDF failed: ' . $th->getMessage());
 
-    //         return $this->responsesService->error(400, __('messages.export_failed'));
+    //         return $this->responsesService->error(400, __('message.export_failed'));
     //     }
     // }
 
     public function getTree()
     {
         $permissions = Permission::with('children')->whereNull('parent_id')->orderBy('order')->get();
-        return $this->responsesService->success(200, __('messages.success'), $permissions);
+        return $this->responsesService->success(200, __('message.success'), $permissions);
     }
 
     public function assignPermission(PermissionRequest $request)
@@ -237,16 +237,16 @@ class PermissionController extends BaseController
         try {
             $roles = Role::find($request->role_ids);
             if ($roles->isEmpty()) {
-                return $this->responsesService->error(400, __('messages.role_not_found'));
+                return $this->responsesService->error(400, __('message.role_not_found'));
             }
             foreach ($roles as $role) {
                 $role->permissions()->syncWithoutDetaching($request->permission_ids);
             }
             DB::commit();
-            return $this->responsesService->success(200, __('messages.permission_assign_successful'));
+            return $this->responsesService->success(200, __('message.permission_assign_successful'));
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->responsesService->error(400, __('messages.permission_assign_failed'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.permission_assign_failed'), $e->getMessage());
         }
     }
 
@@ -259,9 +259,9 @@ class PermissionController extends BaseController
                 $role->permissions()->detach($request->permission_ids);
             }
             DB::commit();
-            return $this->responsesService->success(200, __('messages.permission_revoke_successful'));
+            return $this->responsesService->success(200, __('message.permission_revoke_successful'));
         } catch (Exception $e) {
-            return $this->responsesService->error(400, __('messages.permission_revoke_failed'), $e->getMessage());
+            return $this->responsesService->error(400, __('message.permission_revoke_failed'), $e->getMessage());
         }
     }
 }
