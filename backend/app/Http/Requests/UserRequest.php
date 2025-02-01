@@ -39,7 +39,7 @@ class UserRequest extends FormRequest
             'image' => 'nullable|image',
             'name' => 'string|max:255',
             'email' => 'string|email|email:rfc,dns|max:255',
-            'file' => 'file|mimes:xlsx,xls,csv|max:2048',
+            'file' => 'file',
         ];
 
         if ($this->isMethod('get')) {

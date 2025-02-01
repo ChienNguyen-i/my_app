@@ -36,7 +36,7 @@ class RoleRequest extends FormRequest
             'ids' => 'array',
             'ids.*' => 'exists:roles,id',
             'name' => 'string|max:255',
-            'file' => 'file|mimes:xlsx,xls,csv|max:2048',
+            'file' => 'file',
             'user_ids' => 'array',
             'role_ids' => 'array',
             'user_ids.*' => 'exists:users,id',

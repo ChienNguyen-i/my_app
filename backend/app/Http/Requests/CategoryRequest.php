@@ -41,7 +41,7 @@ class CategoryRequest extends FormRequest
             'parent_id' => 'nullable|integer|exists:categories,id',
             'order' => 'integer',
             'icon' => 'nullable|string|max:255',
-            'file' => 'file|mimes:xlsx,xls,csv|max:2048',
+            'file' => 'file',
         ];
 
         if ($this->isMethod('get')) {

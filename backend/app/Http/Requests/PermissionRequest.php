@@ -40,7 +40,7 @@ class PermissionRequest extends FormRequest
             'key_code' => 'string|max:255|unique:permissions,key_code',
             'parent_id' => 'nullable|integer|exists:permissions,id',
             'order' => 'integer',
-            'file' => 'file|mimes:xlsx,xls,csv|max:2048',
+            'file' => 'file',
             'role_ids' => 'array',
             'permission_ids' => 'array',
             'role_ids.*' => 'exists:roles,id',
