@@ -32,7 +32,7 @@ class AuthRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'image' => 'nullable|image',
             'name' => 'string|max:255',
             'email' => 'string|email|email:rfc,dns|max:255',
             'password' => 'string|min:8|max:255|regex:/[A-Z]/|regex:/[a-z]/|regex:/[0-9]/|regex:/[@$!%*?&]/',

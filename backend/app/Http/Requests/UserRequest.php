@@ -36,7 +36,7 @@ class UserRequest extends FormRequest
             'limit' => 'integer',
             'ids' => 'array',
             'ids.*' => 'exists:users,id',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'image' => 'nullable|image',
             'name' => 'string|max:255',
             'email' => 'string|email|email:rfc,dns|max:255',
             'file' => 'file|mimes:xlsx,xls,csv|max:2048',
